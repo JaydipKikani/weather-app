@@ -1,7 +1,9 @@
 import { configureStore, combineReducers } from "@reduxjs/toolkit";
 import weatherReducer from "./slices/weatherSlice";
+import searchHistoryReducer from "./slices/searchHistorySlice";
 
-import { persistStore } from "redux-persist";
+import { persistReducer, persistStore } from "redux-persist";
+import storage from "redux-persist/lib/storage";
 
 import {
   FLUSH,
@@ -12,8 +14,19 @@ import {
   REGISTER,
 } from "redux-persist";
 
+const searchHistoryPersistConfig = {
+  key: "searchHistory",
+  storage,
+};
+
+const persistedSearchHistoryReducer = persistReducer(
+  searchHistoryPersistConfig,
+  searchHistoryReducer
+);
+
 const rootReducer = combineReducers({
   weather: weatherReducer,
+  searchHistory: persistedSearchHistoryReducer,
 });
 
 const store = configureStore({

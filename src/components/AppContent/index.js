@@ -4,10 +4,12 @@ import Card from "../card";
 import Spinner from "../../icons/spinner";
 import { useSelector, useDispatch } from "react-redux";
 import { fetchWeather } from "../../redux/slices/weatherSlice";
+import { addSearch, clearHistory } from "../../redux/slices/searchHistorySlice";
 
 function AppContent() {
   const dispatch = useDispatch();
   const { data, loading } = useSelector((state) => state.weather);
+  const { history } = useSelector((state) => state.searchHistory);
 
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [city, setCity] = useState("");
@@ -15,10 +17,20 @@ function AppContent() {
   const handleSearch = async (city) => {
     if (city) {
       try {
-        dispatch(fetchWeather(city));
+        const resultAction = await dispatch(fetchWeather(city));
+        if (resultAction?.payload?.cod === 200) {
+          dispatch(addSearch(city));
+        }
       } catch (error) {
         console.error("Error fetching weather:", error);
       }
+    }
+  };
+
+  const handleClick = (city) => {
+    if (city) {
+      setCity(city);
+      dispatch(fetchWeather(city));
     }
   };
 
@@ -52,13 +64,34 @@ function AppContent() {
           </button>
         </div>
 
-        <ul className="flex-grow overflow-y-auto p-6 space-y-3 text-gray-700"></ul>
+        <ul className="flex-grow overflow-y-auto p-6 space-y-3 text-gray-700">
+          {history?.length === 0 ? (
+            <li className="text-gray-400 italic">No history found.</li>
+          ) : (
+            history.map((item, index) => (
+              <li
+                key={index}
+                onClick={() => {
+                  handleClick(item);
+                  setSidebarOpen(false);
+                }}
+                className="cursor-pointer px-3 py-2 rounded hover:bg-blue-50"
+              >
+                🔍 {item[0].toUpperCase() + item.slice(1)}
+              </li>
+            ))
+          )}
+        </ul>
 
         <div className="px-6 pb-6 pt-2">
           <button
-            onClick={() => {}}
-            className={`w-full py-3 rounded-md font-medium shadow-md transition focus:outline-none focus:ring-4`}
-            aria-label="Clear search history"
+            onClick={() => dispatch(clearHistory())}
+            disabled={history.length === 0}
+            className={`w-full py-3 rounded font-medium transition ${
+              history.length === 0
+                ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+                : "bg-blue-600 text-white hover:bg-blue-700"
+            }`}
           >
             Clear History
           </button>
