@@ -70,7 +70,7 @@ const Card = (props) => {
   return (
     <React.Fragment>
       <div className="flex justify-center items-center min-h-[400px] mt-16 px-4">
-        <div className="max-w-md w-full rounded-lg bg-gradient-to-br from-gray-900 via-gray-800 to-gray-700 text-white shadow-2xl shadow-indigo-600/50 overflow-hidden">
+        <div className="max-w-md w-full rounded-lg bg-gradient-to-br from-gray-900 via-gray-800 to-gray-700 text-white shadow-2xl overflow-hidden">
           {Data && Data.cod === 200 ? (
             <div className="p-6">
               <h2 className="text-3xl font-extrabold mb-6 border-b border-indigo-500 pb-2">

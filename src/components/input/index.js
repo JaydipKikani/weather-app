@@ -1,8 +1,42 @@
+import React, { useState, useEffect, useMemo } from "react";
+import debounce from "lodash.debounce";
+import { cities } from "../../data/cities";
+
 const InputField = ({ onClick, value, setValue }) => {
+  const [suggestions, setSuggestions] = useState([]);
+  const [city, setCity] = useState("");
+
+  const searchCities = useMemo(
+    () =>
+      debounce((query) => {
+        if (!query) return setSuggestions([]);
+
+        const filtered = cities
+          .filter((c) => c.name.toLowerCase().startsWith(query.toLowerCase()))
+          .slice(0, 10);
+
+        setSuggestions(filtered);
+      }, 300),
+    []
+  );
+
+  useEffect(() => {
+    searchCities(city);
+  }, [city]);
+
   const callData = () => {
     if (value) {
       onClick(value);
+      setSuggestions([]);
+      setCity("");
     }
+  };
+
+  const handleSuggestionClick = (selectedCity) => {
+    setValue(selectedCity.name);
+    onClick(selectedCity.name);
+    setSuggestions([]);
+    setCity("");
   };
 
   return (
@@ -35,11 +69,12 @@ const InputField = ({ onClick, value, setValue }) => {
           <input
             onChange={(e) => {
               setValue(e.target.value.trim());
+              setCity(e.target.value.trim());
             }}
             value={value}
             type="search"
             id="default-search"
-            className="block w-full p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+            className="block w-full p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
             placeholder="Search City..."
             required
           />
@@ -51,6 +86,20 @@ const InputField = ({ onClick, value, setValue }) => {
           </button>
         </div>
       </div>
+
+      {suggestions?.length > 0 && (
+        <ul className="absolute z-10 w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-md shadow-md mt-1 max-h-60 overflow-y-auto">
+          {suggestions?.map((c, index) => (
+            <li
+              key={index}
+              onClick={() => handleSuggestionClick(c)}
+              className="px-4 py-2 hover:bg-blue-100 dark:hover:bg-gray-700 cursor-pointer"
+            >
+              {c.name}, {c.country}
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 };
