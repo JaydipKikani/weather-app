@@ -1,11 +1,26 @@
 import React, { useState } from "react";
 import InputField from "../input";
+import Card from "../card";
+import Spinner from "../../icons/spinner";
+import { useSelector, useDispatch } from "react-redux";
+import { fetchWeather } from "../../redux/slices/weatherSlice";
 
 function AppContent() {
+  const dispatch = useDispatch();
+  const { data, loading } = useSelector((state) => state.weather);
+
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [city, setCity] = useState("");
 
-  const handleSearch = async (city) => {};
+  const handleSearch = async (city) => {
+    if (city) {
+      try {
+        dispatch(fetchWeather(city));
+      } catch (error) {
+        console.error("Error fetching weather:", error);
+      }
+    }
+  };
 
   return (
     <div className="App relative min-h-screen bg-gray-50">
@@ -60,6 +75,7 @@ function AppContent() {
 
       <div className="pt-10 px-4 max-w-xl mx-auto">
         <InputField onClick={handleSearch} value={city} setValue={setCity} />
+        {!loading ? <Card Data={data} /> : <Spinner />}
       </div>
     </div>
   );
