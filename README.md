@@ -35,6 +35,6 @@ A responsive React application that allows users to search for a city's weather 
 
 ```bash
 git clone https://github.com/your-username/weather-outfit-recommender.git
-cd weather-outfit-recommender
+cd weather-app
 npm i
-npm run start
+npm start
